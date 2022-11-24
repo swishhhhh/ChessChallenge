@@ -31,7 +31,12 @@ public class Solver {
 		startMillis = System.currentTimeMillis(); //start timer
 		return isCMinNmoves(maxNumberOfMoves, maxNumberOfMoves, maxSeconds, board, previousMove);
 	}
-	
+
+	/**
+	 * Applies a brute-force recursive algorithm (for every possible move, try every possible counter-move, recurse until
+	 * solution (mate) is found OR max-number of moves are reached).
+	 *
+	 */
 	private boolean isCMinNmoves(int initialMaxNumberOfMoves, int remainingNumberOfMoves, int maxSeconds, BoardModel workingBoard, Move prevMove) {
 		recurseCounter++;
 		
