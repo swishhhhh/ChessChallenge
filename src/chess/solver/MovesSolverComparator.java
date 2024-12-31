@@ -7,22 +7,15 @@ import chess.moves.Move;
 
 public class MovesSolverComparator implements Comparator<Move> {
 	private static Integer getPieceMovePriority(PieceType pieceType) {
-		switch (pieceType) {
-			case QUEEN:
-				return 1;
-			case ROOK:
-				return 2;
-			case KNIGHT:
-				return 3;
-			case BISHOP:
-				return 4;
-			case PAWN:
-				return 5;
-			case KING:
-				return 6;
-			default:
-				return 10;
-		}
+        return switch (pieceType) {
+            case QUEEN -> 1;
+            case ROOK -> 2;
+            case KNIGHT -> 3;
+            case BISHOP -> 4;
+            case PAWN -> 5;
+            case KING -> 6;
+            default -> 10;
+        };
 	}
 			
 	@Override

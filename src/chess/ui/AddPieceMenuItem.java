@@ -3,9 +3,8 @@ import javax.swing.JMenuItem;
 
 import chess.model.ChessPiece;
 
-@SuppressWarnings("serial")
 public class AddPieceMenuItem extends JMenuItem {
-	private ChessPiece piece;
+	private final ChessPiece piece;
 
 	public AddPieceMenuItem(String label, ChessPiece piece) {
 		super();

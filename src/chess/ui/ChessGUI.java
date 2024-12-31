@@ -24,23 +24,22 @@ import static chess.ChessConstants.STARTING_ROW_WHITE_PIECES;
 
 public class ChessGUI {
 
-	private static final JLabel messageLabel = new JLabel("Chess Challegne is ready to play!");
+	private static final JLabel messageLabel = new JLabel("Chess Challenge is ready to play!");
     private static final String COLS = "ABCDEFGH";
     private static final int KING = 0, QUEEN = 1, ROOK = 2, KNIGHT = 3, BISHOP = 4, PAWN = 5;
     
     private final JPanel gui = new JPanel(new BorderLayout(3, 3));
-    private ChessCellButton[][] chessBoardSquares = new ChessCellButton[8][8];
-    private Image[][] chessPieceImages = new Image[2][6];
-    private JPanel chessBoard;
-    private UiMoveState moveState = new UiMoveState();
+    private final ChessCellButton[][] chessBoardSquares = new ChessCellButton[8][8];
+    private final Image[][] chessPieceImages = new Image[2][6];
+    private final UiMoveState moveState = new UiMoveState();
     private GameController gameController = new GameController(new BoardModel(), this); //start with empty board
     private boolean setupMode = true;
-    private JRadioButton setupModeButton = new JRadioButton("Setup Mode", true);
-    private JRadioButton gameModeButton = new JRadioButton("Game Mode", false);
+    private final JRadioButton setupModeButton = new JRadioButton("Setup Mode", true);
+    private final JRadioButton gameModeButton = new JRadioButton("Game Mode", false);
     private JSlider maxMovesSlider;
     private int maxMovesToSolve = 3;
     private int maxSecondsToSolve = 5;
-    private JFileChooser fileChooser = new JFileChooser();
+    private final JFileChooser fileChooser = new JFileChooser();
     
     public static final ImageIcon BLANK_SQUARE = new ImageIcon(
             new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB));
@@ -124,24 +123,29 @@ public class ChessGUI {
 
 //        gui.add(new JLabel("?"), BorderLayout.LINE_START);
 
-        chessBoard = new JPanel() {
+        /*
+         * Override the preferred size to return the largest it can, in
+         * a square shape.  Must (must, must) be added to a GridBagLayout
+         * as the only component (it uses the parent as a guide to size)
+         * with no GridBagConstraint (so it is centered).
+         */
+        // the smaller of the two sizes
+        JPanel chessBoard = new JPanel() {
             /**
              * Override the preferred size to return the largest it can, in
              * a square shape.  Must (must, must) be added to a GridBagLayout
              * as the only component (it uses the parent as a guide to size)
-             * with no GridBagConstaint (so it is centered).
+             * with no GridBagConstraint (so it is centered).
              */
             @Override
-            public final Dimension getPreferredSize() {
+            public Dimension getPreferredSize() {
                 Dimension d = super.getPreferredSize();
-                Dimension prefSize = null;
+                Dimension prefSize;
                 Component c = getParent();
                 if (c == null) {
                     prefSize = new Dimension(
-                            (int)d.getWidth(),(int)d.getHeight());
-                } else if (c!=null &&
-                        c.getWidth()>d.getWidth() &&
-                        c.getHeight()>d.getHeight()) {
+                            (int) d.getWidth(), (int) d.getHeight());
+                } else if (c.getWidth() > d.getWidth() && c.getHeight() > d.getHeight()) {
                     prefSize = c.getSize();
                 } else {
                     prefSize = d;
@@ -149,8 +153,8 @@ public class ChessGUI {
                 int w = (int) prefSize.getWidth();
                 int h = (int) prefSize.getHeight();
                 // the smaller of the two sizes
-                int s = (w>h ? h : w);
-                return new Dimension(s,s);
+                int s = (Math.min(w, h));
+                return new Dimension(s, s);
             }
         };
 
@@ -200,14 +204,14 @@ public class ChessGUI {
         topRL.setFill(true);
         JPanel top = new JPanel( topRL );
         top.setOpaque(false);
-        chessBoard.add(top, new Float(1));
+        chessBoard.add(top, Float.valueOf(1));
 
-        top.add(new JLabel(""), new Float(1));
+        top.add(new JLabel(""), Float.valueOf(1));
 
         // fill the top row
         for (int ii = 0; ii < 8; ii++) {
         	JLabel label = new JLabel(" " + (9-(ii + 1)), SwingConstants.CENTER);
-            top.add(label, new Float(1));
+            top.add(label, Float.valueOf(1));
         }
         // fill the black non-pawn piece row
         for (int ii = 0; ii < 8; ii++) {
@@ -217,15 +221,13 @@ public class ChessGUI {
             rowRL.setFill(true);
             JPanel row = new JPanel( rowRL );
             row.setOpaque(false);
-            chessBoard.add(row, new Float(1));
+            chessBoard.add(row, Float.valueOf(1));
 
             for (int jj = 0; jj < 8; jj++) {
-                switch (jj) {
-                    case 0:
-                    	row.add(new JLabel(COLS.substring(ii, ii + 1), SwingConstants.CENTER), new Float(1));
-                    default:
-                        row.add(chessBoardSquares[jj][ii], new Float(1));
+                if (jj == 0) {
+                    row.add(new JLabel(COLS.substring(ii, ii + 1), SwingConstants.CENTER), Float.valueOf(1));
                 }
+                row.add(chessBoardSquares[jj][ii], Float.valueOf(1));
             }
         }           
     }
@@ -411,7 +413,7 @@ public class ChessGUI {
 		return gameController;
 	}
 
-    private final void createImages() {
+    private void createImages() {
         try {
         	URL url = getClass().getClassLoader().getResource("resources/chess_pieces.png");
             BufferedImage bi = ImageIO.read(url);
@@ -431,12 +433,11 @@ public class ChessGUI {
     /**
      * Initializes the icons of the initial chess board piece places
      */
-    private final void setupNewGame() {
+    private void setupNewGame() {
         messageLabel.setText("Make your move");
         
         BoardModel board = new BoardModel();
         gameController = new GameController(board, this);
-		gameController.setPlayerToMoveNext(Color.WHITE);
 		gameController.getMoves().clear();
 		resetBoardBackgroundColors();
 		
@@ -466,10 +467,9 @@ public class ChessGUI {
 		enableOrDisableAllPopups(!toggle);
 	}
     
-	private final void clearBoard() {
+	private void clearBoard() {
 		BoardModel board = new BoardModel();
         gameController = new GameController(board, this);
-		gameController.setPlayerToMoveNext(Color.WHITE);
 		gameController.getMoves().clear();
 		resetBoardBackgroundColors();
 		syncViewWithModel();
@@ -482,7 +482,7 @@ public class ChessGUI {
     	toggleGameMode(false);
     }
 	
-	private final void undoMove() {
+	private void undoMove() {
 		if (moveState.isInProgress()) {
 			updateMessage("complete your move first...", true);
 			return; //don't do anything if in middle of a move
@@ -499,34 +499,21 @@ public class ChessGUI {
 	}
     
     public Image getImageForPiece(ChessPiece piece) {
-     	switch (piece) {
-			case BLACK_PAWN:
-				return chessPieceImages[0][PAWN];
-			case BLACK_KING:
-				return chessPieceImages[0][KING];
-			case BLACK_QUEEN:
-				return chessPieceImages[0][QUEEN];
-			case BLACK_ROOK:
-				return chessPieceImages[0][ROOK];
-			case BLACK_KNIGHT:
-				return chessPieceImages[0][KNIGHT];
-			case BLACK_BISHOP:
-				return chessPieceImages[0][BISHOP];
-			case WHITE_PAWN:
-				return chessPieceImages[1][PAWN];
-			case WHITE_KING:
-				return chessPieceImages[1][KING];
-			case WHITE_QUEEN:
-				return chessPieceImages[1][QUEEN];
-			case WHITE_ROOK:
-				return chessPieceImages[1][ROOK];
-			case WHITE_KNIGHT:
-				return chessPieceImages[1][KNIGHT];
-			case WHITE_BISHOP:
-				return chessPieceImages[1][BISHOP];
-			default:
-				return null;
-		}
+        return switch (piece) {
+            case BLACK_PAWN -> chessPieceImages[0][PAWN];
+            case BLACK_KING -> chessPieceImages[0][KING];
+            case BLACK_QUEEN -> chessPieceImages[0][QUEEN];
+            case BLACK_ROOK -> chessPieceImages[0][ROOK];
+            case BLACK_KNIGHT -> chessPieceImages[0][KNIGHT];
+            case BLACK_BISHOP -> chessPieceImages[0][BISHOP];
+            case WHITE_PAWN -> chessPieceImages[1][PAWN];
+            case WHITE_KING -> chessPieceImages[1][KING];
+            case WHITE_QUEEN -> chessPieceImages[1][QUEEN];
+            case WHITE_ROOK -> chessPieceImages[1][ROOK];
+            case WHITE_KNIGHT -> chessPieceImages[1][KNIGHT];
+            case WHITE_BISHOP -> chessPieceImages[1][BISHOP];
+            default -> null;
+        };
     }
     
     public void updateMessage(String message, boolean isError) {
@@ -548,30 +535,26 @@ public class ChessGUI {
     }
 
     public static void main(String[] args) {
-        Runnable r = new Runnable() {
+        Runnable r = () -> {
+            ChessGUI cg = new ChessGUI();
 
-            @Override
-            public void run() {
-                ChessGUI cg = new ChessGUI();
+            JFrame f = new JFrame("Chess Challenge");
+            f.add(cg.getGui());
+            // Ensures JVM closes after frame(s) closed and
+            // all non-daemon threads are finished
+            f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            // See http://stackoverflow.com/a/7143398/418556 for demo.
+            f.setLocationByPlatform(true);
 
-                JFrame f = new JFrame("Chess Challenge");
-                f.add(cg.getGui());
-                // Ensures JVM closes after frame(s) closed and
-                // all non-daemon threads are finished
-                f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                // See http://stackoverflow.com/a/7143398/418556 for demo.
-                f.setLocationByPlatform(true);
-
-                // ensures the frame is the minimum size it needs to be
-                // in order display the components within it
-                f.pack();
-                // ensures the minimum size is enforced.
+            // ensures the frame is the minimum size it needs to be
+            // in order display the components within it
+            f.pack();
+            // ensures the minimum size is enforced.
 //                f.setMinimumSize(f.getSize());
-                Dimension d = cg.getGui().getSize();
-                d.setSize(1.1 * d.getWidth(), d.getHeight()); //widen the board a bit (message label gets chopped sometimes)
-                f.setMinimumSize(d);
-                f.setVisible(true);
-            }
+            Dimension d = cg.getGui().getSize();
+            d.setSize(1.1 * d.getWidth(), d.getHeight()); //widen the board a bit (message label gets chopped sometimes)
+            f.setMinimumSize(d);
+            f.setVisible(true);
         };
         // Swing GUIs should be created and updated on the EDT
         // http://docs.oracle.com/javase/tutorial/uiswing/concurrency
@@ -648,7 +631,7 @@ public class ChessGUI {
     }
     
     private boolean solveForInNmoves(Color color, int maxMoves) {
-    	System.out.println(String.format("==== Trying to solve in max %s moves =====", maxMovesToSolve));
+    	System.out.printf("==== Trying to solve in max %s moves =====%n", maxMovesToSolve);
     	
     	Solver solver = new Solver(gameController.getBoard(), color, gameController.getLastMove());
 		if (solver.tryToSolveIn(maxMoves, maxSecondsToSolve)) {

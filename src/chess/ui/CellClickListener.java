@@ -12,8 +12,8 @@ import chess.moves.Move;
 import chess.moves.MovesProcessor;
 
 public class CellClickListener extends MouseAdapter {
-	private ChessCellButton cellButton;
-	private ChessGUI gui;
+	private final ChessCellButton cellButton;
+	private final ChessGUI gui;
 	
 	public CellClickListener(ChessCellButton cell, ChessGUI gui) {
 		super();
@@ -26,7 +26,7 @@ public class CellClickListener extends MouseAdapter {
 		if (event.getSource() == cellButton) {
 			handleCellClickEvent(event);
 		} else if (event.getSource() == cellButton.getDeleteMenuItem()) {
-			handleDeletePieceEvent(event);
+			handleDeletePieceEvent();
 		} else if (event.getSource() instanceof AddPieceMenuItem) {
 			handleAddPiece(event);
 		} else if (event.getSource() instanceof PromotePieceMenuItem) {
@@ -43,7 +43,7 @@ public class CellClickListener extends MouseAdapter {
         gui.resetBoardBackgroundColors();
 	}
 	
-	private void handleDeletePieceEvent(MouseEvent event) {
+	private void handleDeletePieceEvent() {
 		if (!cellButton.isOccupied()) {
 			return;
 		}
@@ -80,8 +80,7 @@ public class CellClickListener extends MouseAdapter {
 			if (sourceCell == cellButton   //clicked on same cell, cancel move
 				 ) { 
 				cancelMove(moveState, sourceCell);
-				return;
-			} else { //complete move
+            } else { //complete move
 				if (isPawnPromotionMove(sourceCell.getPiece(), this.cellButton.getCell())) {
 					cellButton.getPromotePiecePopUpMenu().show(event.getComponent(), event.getX(), event.getY());
 				} else {
@@ -144,7 +143,7 @@ public class CellClickListener extends MouseAdapter {
 		
 		//if en-passant move, create move via the en-passant constructor...
 		if (piece.getPieceType().equals(PieceType.PAWN)) {
-			if (MovesProcessor.isEnPassantCapture(board, piece, targetCell.getRow(), targetCell.getCol(), gameController.getLastMove())) {
+			if (MovesProcessor.isEnPassantCapture(piece, targetCell.getRow(), targetCell.getCol(), gameController.getLastMove())) {
 				move = new Move(board, piece, sourceCellButton.getCell(), targetCell, true);
 			}
 		}

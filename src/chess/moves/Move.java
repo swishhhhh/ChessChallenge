@@ -7,9 +7,9 @@ import chess.model.Cell;
 import chess.model.ChessPiece;
 
 public class Move {
-	private ChessPiece piece;
-	private Cell source;
-	private Cell target;
+	private final ChessPiece piece;
+	private final Cell source;
+	private final Cell target;
 	private boolean capturePiece;
 	private ChessPiece capturedPiece;
 	private boolean castling;
@@ -69,8 +69,9 @@ public class Move {
 				captureCell = new Cell(3, target.getCol());
 			} else if (target.getRow() == 5) {
 				captureCell = new Cell(4, target.getCol());
-			} 
-			this.setCapturedPiece(board.getPiece(captureCell));
+			}
+            assert captureCell != null;
+            this.setCapturedPiece(board.getPiece(captureCell));
 			this.enPassantCaptureCell = captureCell;
 		}
 	}
@@ -107,7 +108,6 @@ public class Move {
 		if (piece.equals(ChessPiece.BLACK_KING) && source.equals(STARTING_CELL_BLACK_KING)) {
 			if (target.equals(CASTLE_CELL_KING_BLACK_QUEENSIDE) || target.equals(CASTLE_CELL_KING_BLACK_KINGSIDE)) {
 				castling = true;
-				return;
 			}
 		}
 	}
@@ -142,10 +142,6 @@ public class Move {
 
 	public void setCapturePiece(boolean capturePiece) {
 		this.capturePiece = capturePiece;
-	}
-
-	public void setCastling(boolean castling) {
-		this.castling = castling;
 	}
 
 	public void setPromotedPiece(ChessPiece promotedPiece) {
@@ -203,10 +199,7 @@ public class Move {
 		} else if (!source.equals(other.source))
 			return false;
 		if (target == null) {
-			if (other.target != null)
-				return false;
-		} else if (!target.equals(other.target))
-			return false;
-		return true;
-	}
+            return other.target == null;
+		} else return target.equals(other.target);
+    }
 }

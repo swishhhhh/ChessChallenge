@@ -12,9 +12,9 @@ import chess.moves.MovesProcessor;
 import chess.moves.MovesSummary;
 
 public class Solver {
-	private BoardModel board;
-	private Color colorToSolveFor;
-	private Move previousMove;
+	private final BoardModel board;
+	private final Color colorToSolveFor;
+	private final Move previousMove;
 	private Move nextMove;
 	private long startMillis;
 	private long movesCounter;
@@ -120,12 +120,12 @@ public class Solver {
 
 	private boolean maxTimeExceeded(int maxSeconds, int maxMoves) {
 		printCounters(maxMoves);
-		return System.currentTimeMillis() - (maxSeconds * 1000) > startMillis;
+		return System.currentTimeMillis() - (maxSeconds * 1000L) > startMillis;
 	}
 	
 	public void printCounters(int maxMoves) {
 		double seconds = (System.currentTimeMillis() - startMillis) / 1000d;
-		System.out.println(String.format("max # moves: %s, elapsed seconds: %s, recursion count: %s, moves count: %s", maxMoves, seconds, recurseCounter, movesCounter));
+		System.out.printf("max # moves: %s, elapsed seconds: %s, recursion count: %s, moves count: %s%n", maxMoves, seconds, recurseCounter, movesCounter);
 	}
 
 	public Move getNextMoveIfSolved() {

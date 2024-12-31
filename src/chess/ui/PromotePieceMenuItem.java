@@ -3,9 +3,8 @@ import javax.swing.JMenuItem;
 
 import chess.model.PieceType;
 
-@SuppressWarnings("serial")
 public class PromotePieceMenuItem extends JMenuItem {
-	private PieceType pieceType;
+	private final PieceType pieceType;
 
 	public PromotePieceMenuItem(PieceType pieceType) {
 		super();

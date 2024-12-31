@@ -4,9 +4,9 @@ import static chess.Utils.*;
 import static java.lang.String.format;
 
 public class Cell {
-	private int row;
-	private int col;
-	private String label;
+	private final int row;
+	private final int col;
+	private final String label;
 	
 	public Cell(int rowNum, int colNum) {
 		super();
@@ -52,10 +52,7 @@ public class Cell {
 			return false;
 		Cell other = (Cell) obj;
 		if (label == null) {
-			if (other.label != null)
-				return false;
-		} else if (!label.equals(other.label))
-			return false;
-		return true;
-	}
+            return other.label == null;
+		} else return label.equals(other.label);
+    }
 }

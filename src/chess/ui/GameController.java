@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import chess.Utils;
 import chess.model.BoardModel;
 import chess.model.Cell;
 import chess.moves.Move;
@@ -13,10 +12,9 @@ import chess.moves.MovesProcessor;
 
 public class GameController {
 	private BoardModel board;
-	private ChessGUI gui;
-	private List<Move> moves = new ArrayList<>();
-	private Color playerToMoveNext;
-	
+	private final ChessGUI gui;
+	private final List<Move> moves = new ArrayList<>();
+
 	public GameController(BoardModel board, ChessGUI gui) {
 		super();
 		this.board = board;
@@ -37,7 +35,6 @@ public class GameController {
 	public void applyMove(Move move) {
 		board = MovesProcessor.applyMove(board, move);
 		moves.add(move);
-		playerToMoveNext = Utils.getOpponentColor(move.getPiece().getColor());
 		gui.updateMessage(String.format("%s from %s to %s", move.getPiece(), move.getSource().getLabel(), move.getTarget().getLabel()), false);
 	}
 	
@@ -49,29 +46,17 @@ public class GameController {
 		
 		board = MovesProcessor.undoMove(board, move);
 		moves.remove(moves.size() - 1);
-		playerToMoveNext = Utils.getOpponentColor(move.getPiece().getColor());
 		gui.updateMessage(String.format("Undid %s from %s to %s", move.getPiece(), move.getSource().getLabel(), move.getTarget().getLabel()), false);
 	}
-	
-	public void clearMoves() {
-		moves.clear();
-	}
-	
+
 	public List<Move> getMoves() {
 		return moves;
 	}
 	
 	public Move getLastMove() {
-		return moves == null || moves.isEmpty() ? null : moves.get(moves.size() - 1);
+		return moves.isEmpty() ? null : moves.get(moves.size() - 1);
 	}
-	
-	public Color getPlayerToMoveNext() {
-		return playerToMoveNext;
-	}
-	public void setPlayerToMoveNext(Color playerToMove) {
-		this.playerToMoveNext = playerToMove;
-	} 
-	
+
 	/**
 	 * scans board and highlights cells in check, check-mate, and stale-mate
 	 */
@@ -113,10 +98,8 @@ public class GameController {
 		
 		highlightCheckCmSm(); 
 		Move lastMove = getLastMove();
-		if (MovesProcessor.isCheckMateOnColor(board, Color.WHITE, lastMove) || MovesProcessor.isCheckMateOnColor(board, Color.BLACK, lastMove)) {
-			return false;
-		}
-		
-		return true;
-	}
+        return !MovesProcessor.isCheckMateOnColor(board, Color.WHITE, lastMove)
+				&& !MovesProcessor.isCheckMateOnColor(board, Color.BLACK, lastMove);
+    }
+
 }

@@ -16,11 +16,11 @@ public enum ChessPiece {
 	BLACK_KING(PieceType.KING, Color.BLACK, (byte) 16),
 	NO_PIECE(PieceType.NO_PIECE, Color.GRAY, (byte) 0); //gray color (rather than null) avoids having to do a null-check when comparing colors of 2 pieces...
 	
-	private PieceType pieceType;
-	private Color color;
-	private byte id;
+	private final PieceType pieceType;
+	private final Color color;
+	private final byte id;
 
-	private ChessPiece(PieceType type, Color color, byte id) {
+	ChessPiece(PieceType type, Color color, byte id) {
 		this.pieceType = type;
 		this.color = color;
 		this.id = id;
@@ -39,36 +39,22 @@ public enum ChessPiece {
 	}
 	
 	public static ChessPiece fromId(byte id) {
-		switch (id) {
-			case 0:
-				return NO_PIECE;
-			case 1:
-				return WHITE_PAWN;
-			case 2:
-				return WHITE_ROOK;
-			case 3:
-				return WHITE_KNIGHT;
-			case 4:
-				return WHITE_BISHOP;
-			case 5:
-				return WHITE_QUEEN;
-			case 6:
-				return WHITE_KING;
-			case 11:
-				return BLACK_PAWN;
-			case 12:
-				return BLACK_ROOK;
-			case 13:
-				return BLACK_KNIGHT;
-			case 14:
-				return BLACK_BISHOP;
-			case 15:
-				return BLACK_QUEEN;
-			case 16:
-				return BLACK_KING;	
-			default:
-				throw new IllegalArgumentException("Invalid id " + id);
-		}
+        return switch (id) {
+            case 0 -> NO_PIECE;
+            case 1 -> WHITE_PAWN;
+            case 2 -> WHITE_ROOK;
+            case 3 -> WHITE_KNIGHT;
+            case 4 -> WHITE_BISHOP;
+            case 5 -> WHITE_QUEEN;
+            case 6 -> WHITE_KING;
+            case 11 -> BLACK_PAWN;
+            case 12 -> BLACK_ROOK;
+            case 13 -> BLACK_KNIGHT;
+            case 14 -> BLACK_BISHOP;
+            case 15 -> BLACK_QUEEN;
+            case 16 -> BLACK_KING;
+            default -> throw new IllegalArgumentException("Invalid id " + id);
+        };
 	}
 	
 	public static ChessPiece fromString(String value) {

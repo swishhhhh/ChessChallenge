@@ -3,7 +3,7 @@ package chess.model;
 import java.util.Arrays;
 
 public class BoardModel {
-	private byte[][] grid = new byte[8][8];
+	private final byte[][] grid = new byte[8][8];
 	
 	public void placePiece(byte row, byte col, ChessPiece piece) {
 		grid[row][col] = piece.getId();
@@ -16,7 +16,7 @@ public class BoardModel {
 	public ChessPiece removePiece(byte row, byte col, boolean failIfSquareIsAlreadyEmpty) {
 		ChessPiece piece = getPiece(row, col);
 		if (failIfSquareIsAlreadyEmpty && piece == ChessPiece.NO_PIECE) {
-			throw new IllegalStateException(String.format("Sqaure[%s][%s] is already empty", row, col));
+			throw new IllegalStateException(String.format("Square[%s][%s] is already empty", row, col));
 		}
 		
 		grid[row][col] = ChessPiece.NO_PIECE.getId();
@@ -38,9 +38,7 @@ public class BoardModel {
 	public BoardModel getClone() {
 		BoardModel clone = new BoardModel();
 		for (int row = 0; row < grid.length; row++) {
-			for (int col = 0; col < grid[row].length; col++) {
-				clone.grid[row][col] = this.grid[row][col];
-			}
+            System.arraycopy(this.grid[row], 0, clone.grid[row], 0, grid[row].length);
 		}
 		return clone;
 	}
@@ -70,21 +68,19 @@ public class BoardModel {
 		if (getClass() != obj.getClass())
 			return false;
 		BoardModel other = (BoardModel) obj;
-		if (!Arrays.deepEquals(grid, other.grid))
-			return false;
-		return true;
-	}
+        return Arrays.deepEquals(grid, other.grid);
+    }
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (int row = 0; row < grid.length; row++) {
-			for (int col = 0; col < grid[row].length; col++) {
-				sb.append(String.format("%-12s", ChessPiece.fromId(grid[row][col])) + "|");
-			}
-			sb.append("\r\n");
-			sb.append("\r\n"); //empty row between each row
-		}
+        for (byte[] bytes : grid) {
+            for (byte aByte : bytes) {
+                sb.append(String.format("%-12s", ChessPiece.fromId(aByte))).append("|");
+            }
+            sb.append("\r\n");
+            sb.append("\r\n"); //empty row between each row
+        }
 		return sb.toString();
 	}
 }

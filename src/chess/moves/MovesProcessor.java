@@ -22,21 +22,18 @@ public class MovesProcessor {
 	
 	/**
 	 * 
-	 * @param board
-	 * @param color
-	 * @param previousMove needed during en-passante calculations
+	 * @param previousMove needed during en-passant calculations
 	 * @param filterOutMovesResultingInCheck the reason this is sometimes false (i.e. don't bother checking/filtering-out moves resulting in check) - is
 	 *        to short-circuit the recursive loop where e.g. we're evaluating all of white's moves, and for each one we check (pun!) whether applying
 	 *        that move will result in (white) being in check - which entails getting all of black's subsequent moves and seeing if any of them capture 
 	 *        white's king. Therefore, if in the process of doing this (calculating all of black's potential moves) we would not disable this 
 	 *        "filterOutMovesResultingInCheck" for black - then it would potentially never end - because to validate/filter black's moves, we must get 
-	 *        all of white's subsequent moves, which further have to validate and get all of black's moves, etc etc). So instead, we only do the filter
+	 *        all of white's subsequent moves, which further have to validate and get all of black's moves, etc etc.). So instead, we only do the filter
 	 *        at the first level (i.e. for the first color at the beginning of the chain - in our example white), and then when evaluating all of black's 
 	 *        subsequent moves it's OK not to filter out any moves that would leave it (black) in check - because the purpose of getting all of black's 
 	 *        moves is purely to see if there's any moves that captures white's king - and if that were true, it's by definition a valid move (since the  
-	 *        game would be over as soon as the king is captured) thus allowing us to short-circuit the filter/check.  
-	 * @return
-	 */
+	 *        game would be over as soon as the king is captured) thus allowing us to short-circuit the filter/check.
+     */
 	public static MovesSummary getAllMoves(BoardModel board, Color color, Move previousMove, boolean filterOutMovesResultingInCheck) {
 		MovesSummary movesSummary = new MovesSummary(color, board);
 		for (byte row = 0; row < 8; row++) {
@@ -83,7 +80,7 @@ public class MovesProcessor {
 			col = origin.getCol() + leftThenRight;
 			
 			if (!isOutOfBounds(row, col)) {
-				if (isEnPassantCapture(board, pawn, row, col, prevMove)) {
+				if (isEnPassantCapture(pawn, row, col, prevMove)) {
 					moves.add(new Move(board, pawn, origin, new Cell(row, col), true));
 				} else if (isOccupiedByOpposingPiece(board, row, col, color)) {
 					createPawnMoveAndPossiblePromotionPermutations(board, pawn, origin, row, col, moves);
@@ -110,7 +107,7 @@ public class MovesProcessor {
 
 	public static boolean noPiecesOnRowBetween(BoardModel board, Cell leftCell, Cell rightCell) {
 		if (leftCell.getRow() != rightCell.getRow()) {
-			throw new IllegalArgumentException(String.format("Left-cell row (%s) differes from right-cell row (%s)", 
+			throw new IllegalArgumentException(String.format("Left-cell row (%s) differs from right-cell row (%s)",
 					leftCell.getRow(), rightCell.getRow()));
 		}
 		
@@ -140,18 +137,18 @@ public class MovesProcessor {
 
 	public static Collection<Move> getMovesForKnight(BoardModel board, Cell origin, ChessPiece knight, Move previousMove, boolean filterCheck) {
 		List<Move> moves = new ArrayList<>();
-		
-		for (int i = 0; i < knightMoveIncrements.length; i++) {
-			int row = origin.getRow() + knightMoveIncrements[i][0];
-			int col = origin.getCol() + knightMoveIncrements[i][1];
-			
-			if (isOutOfBounds(row, col) || isOccupiedByPeerPiece(board, row, col, knight.getColor())) {
-				continue;
-			}
-			
-			Cell newCell = new Cell(row, col);
-			moves.add(new Move(board, knight, origin, newCell));
-		}
+
+        for (int[] knightMoveIncrement : knightMoveIncrements) {
+            int row = origin.getRow() + knightMoveIncrement[0];
+            int col = origin.getCol() + knightMoveIncrement[1];
+
+            if (isOutOfBounds(row, col) || isOccupiedByPeerPiece(board, row, col, knight.getColor())) {
+                continue;
+            }
+
+            Cell newCell = new Cell(row, col);
+            moves.add(new Move(board, knight, origin, newCell));
+        }
 		
 		return filterCheck ? filterOutMovesResultingInCheck(board, knight, moves, previousMove) : moves;		
 	}
@@ -224,11 +221,11 @@ public class MovesProcessor {
 		if (move.isCastling()) {
 			CellPair cellPair = getCellPairForRookOnCastle(move);
 			
-			clone.placePiece(cellPair.getToCell(), 
+			clone.placePiece(cellPair.toCell(),
 					move.getPiece().getColor().equals(Color.WHITE) ? ChessPiece.WHITE_ROOK : ChessPiece.BLACK_ROOK);
 			
 			//remove rook from original place
-			clone.removePiece(cellPair.getFromCell(), true);
+			clone.removePiece(cellPair.fromCell(), true);
 		}
 		
 		//handle en-passant (need to remove opponent/captured pawn  
@@ -263,18 +260,18 @@ public class MovesProcessor {
 		if (move.isCastling()) {
 			CellPair cellPair = getCellPairForRookOnCastle(move);
 			
-			clone.placePiece(cellPair.getFromCell(), 
+			clone.placePiece(cellPair.fromCell(),
 					move.getPiece().getColor().equals(Color.WHITE) ? ChessPiece.WHITE_ROOK : ChessPiece.BLACK_ROOK);
 			
 			//move rook from original place
-			clone.removePiece(cellPair.getToCell(), true);
+			clone.removePiece(cellPair.toCell(), true);
 		}
 		
 		return clone;
 	}
 	
 	private static CellPair getCellPairForRookOnCastle(Move move) {
-		Cell rookTargetCell = null, rookOriginCell = null;
+		Cell rookTargetCell, rookOriginCell;
 		
 		if (move.getPiece().getColor().equals(Color.WHITE)) {
 			//check if king-side or queen side
@@ -316,29 +313,20 @@ public class MovesProcessor {
 		return !areSameColors(piece1, piece2);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static Collection<Move> getMovesForPiece(BoardModel board, Cell origin, ChessPiece piece, 
+	public static Collection<Move> getMovesForPiece(BoardModel board, Cell origin, ChessPiece piece,
 			Move previousMove, boolean filterOutMovesResultingInCheck) {
-		
-		switch (piece.getPieceType()) {
-			case KING:
-				return getMovesForKing(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
-			case QUEEN:
-				return getMovesForQueen(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
-			case BISHOP:
-				return getMovesForBishop(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
-			case KNIGHT:
-				return getMovesForKnight(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
-			case ROOK:
-				return getMovesForRook(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
-			case PAWN:
-				return getMovesForPawn(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
-			case NO_PIECE:
-				return Collections.EMPTY_LIST;
-		}
-		
-		throw new IllegalArgumentException();
-	}
+
+        return switch (piece.getPieceType()) {
+            case KING -> getMovesForKing(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
+            case QUEEN -> getMovesForQueen(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
+            case BISHOP -> getMovesForBishop(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
+            case KNIGHT -> getMovesForKnight(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
+            case ROOK -> getMovesForRook(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
+            case PAWN -> getMovesForPawn(board, origin, piece, previousMove, filterOutMovesResultingInCheck);
+            case NO_PIECE -> Collections.EMPTY_LIST;
+        };
+
+    }
 
 	private static Collection<Move> getGenericMovesInDirection(BoardModel board, Cell origin, ChessPiece piece, List<Direction> directions) {
 		return getGenericMovesInDirection(board, origin, piece, directions, Integer.MAX_VALUE);
@@ -419,7 +407,7 @@ public class MovesProcessor {
 		 *  Note that we don't fully comply with the entire list of castling rules. Specifically, the following restrictions are ignored. 
 		 *  1) The king has been moved earlier in the game.
 		 *  2) The rook that castles has been moved earlier in the game.
-		 *  3) The king moves through a square that is attacked by a piece of the opponent.
+		 *  3) The king moves through a square that is attacked by a piece of the opponent. //FIXME
 		 */
 		
 		Collection<Move> moves = new ArrayList<>();
@@ -462,7 +450,7 @@ public class MovesProcessor {
 		return moves;
 	}
 	
-	public static boolean isEnPassantCapture(BoardModel board, ChessPiece pawn, int attackingPawnTargetRow, int attackingPawnTargetCol, Move prevMove) {
+	public static boolean isEnPassantCapture(ChessPiece pawn, int attackingPawnTargetRow, int attackingPawnTargetCol, Move prevMove) {
 		if (prevMove == null || prevMove.getPiece().getPieceType() != PieceType.PAWN
 				|| prevMove.getPiece().getColor().equals(pawn.getColor())) { //not a valid condition during game play (consecutive moves by same color) but is during setup
 			return false;
@@ -471,23 +459,17 @@ public class MovesProcessor {
 		//now that we've determined that the previous move was made by a pawn, check that it moved from its starting rank 2 squares 
 		//and that the attacking pawn's target square (e.g. targetRow, targetCol) is in between those 2 squares
 		if (prevMove.getPiece().getColor().equals(Color.WHITE)) {
-			if (   prevMove.getSource().getRow() == 6 
-				&& prevMove.getTarget().getRow() == 4 
-				&& attackingPawnTargetRow == 5
-				&& prevMove.getSource().getCol() == attackingPawnTargetCol) {
-				return true;
-			}
+            return prevMove.getSource().getRow() == 6
+                    && prevMove.getTarget().getRow() == 4
+                    && attackingPawnTargetRow == 5
+                    && prevMove.getSource().getCol() == attackingPawnTargetCol;
 		} else { //prevMove made by black
-			if (   prevMove.getSource().getRow() == 1 
-				&& prevMove.getTarget().getRow() == 3 
-				&& attackingPawnTargetRow == 2
-				&& prevMove.getSource().getCol() == attackingPawnTargetCol) {
-				return true;
-			}
+            return prevMove.getSource().getRow() == 1
+                    && prevMove.getTarget().getRow() == 3
+                    && attackingPawnTargetRow == 2
+                    && prevMove.getSource().getCol() == attackingPawnTargetCol;
 		}
-		
-		return false;
-	}
+    }
 	
 	private static void createPawnMoveAndPossiblePromotionPermutations(BoardModel board, ChessPiece pawn, Cell origin, 
 			int targetRow, int targetCol, List<Move> moves) {

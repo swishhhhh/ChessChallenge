@@ -10,10 +10,10 @@ public enum Direction {
 	W(0, -1), 
 	NW(-1, -1);
 	
-	private int rowIncrement;
-	private int colIncrement;
+	private final int rowIncrement;
+	private final int colIncrement;
 	
-	private Direction(int rowIncrement, int colIncrement) {
+	Direction(int rowIncrement, int colIncrement) {
 		this.rowIncrement = rowIncrement;
 		this.colIncrement = colIncrement;
 	}

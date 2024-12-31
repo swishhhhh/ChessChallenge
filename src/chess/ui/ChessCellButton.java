@@ -14,22 +14,21 @@ import chess.model.Cell;
 import chess.model.ChessPiece;
 import chess.model.PieceType;
 
-@SuppressWarnings("serial")
 public class ChessCellButton extends JButton {
-	private Cell cell;
+	private final Cell cell;
 	private ChessPiece piece;
-	private CellClickListener eventHandler;
-	private JPopupMenu popUpMenu;
-	private JMenuItem deleteMenuItem;
-	private JMenu addPieceSubMenu;
-	private JPopupMenu promotePiecePopUpMenu;
-	private Color selectedCellColor = new Color(100, 150, 200);
-	private Color validTargetCellColor = new Color(200, 220, 240);
-	private Color inCheckColor = new Color(250, 190, 190);
-	private Color inCheckMateColor = Color.RED;
-	private Color inStaleMateColor = Color.ORANGE;
-	private Color prevCellColor = Color.LIGHT_GRAY;
-	private Color currentCellColor = Color.GRAY;
+	private final CellClickListener eventHandler;
+	private final JPopupMenu popUpMenu;
+	private final JMenuItem deleteMenuItem;
+	private final JMenu addPieceSubMenu;
+	private final JPopupMenu promotePiecePopUpMenu;
+	private final Color selectedCellColor = new Color(100, 150, 200);
+	private final Color validTargetCellColor = new Color(200, 220, 240);
+	private final Color inCheckColor = new Color(250, 190, 190);
+	private final Color inCheckMateColor = Color.RED;
+	private final Color inStaleMateColor = Color.ORANGE;
+	private final Color prevCellColor = Color.LIGHT_GRAY;
+	private final Color currentCellColor = Color.GRAY;
 	
 	public ChessCellButton(int rowNum, int colNum, ChessGUI gui) {
 		super();
@@ -84,13 +83,11 @@ public class ChessCellButton extends JButton {
 		setToolTipText(cell.getLabel() + ", " + piece);
 	}
 	
-	public ChessPiece removePiece() {
-		ChessPiece piece = this.piece;
-		deleteMenuItem.setEnabled(false);
+	public void removePiece() {
+        deleteMenuItem.setEnabled(false);
 		addPieceSubMenu.setEnabled(true);
 		setToolTipText(cell.getLabel());
 		this.piece = null;
-		return piece;
 	}
 	
 	public boolean isOccupied() {
@@ -136,15 +133,7 @@ public class ChessCellButton extends JButton {
 	public void highlightAsCurrentCell() {
 		setBackground(currentCellColor);
 	}
-	
-	public void resetBackgroundColor() {
-		if (cell.getRow() % 2 == cell.getCol() % 2) {
-			setBackground(Color.WHITE);
-		} else {
-			setBackground(Color.BLACK);
-		}
-	}
-	
+
 	private void populateAddPiecesSubMenu() {
 		popUpMenu.add(addPieceSubMenu);
 		JMenu whitePieces = new JMenu("White...");
