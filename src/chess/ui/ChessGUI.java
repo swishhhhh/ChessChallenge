@@ -1,41 +1,4 @@
 package chess.ui;
-import static chess.ChessConstants.STARTING_ROW_BLACK_PIECES;
-import static chess.ChessConstants.STARTING_ROW_WHITE_PIECES;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
-
-import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JSlider;
-import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import chess.Utils;
 import chess.model.BoardModel;
@@ -44,6 +7,20 @@ import chess.model.ChessPiece;
 import chess.moves.Move;
 import chess.moves.MovesProcessor;
 import chess.solver.Solver;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.net.URL;
+
+import static chess.ChessConstants.STARTING_ROW_BLACK_PIECES;
+import static chess.ChessConstants.STARTING_ROW_WHITE_PIECES;
 
 public class ChessGUI {
 
@@ -411,6 +388,15 @@ public class ChessGUI {
         }
         
         gameController.highlightCheckCmSm();
+
+		if (gameController.getLastMove() == null) {
+			return;
+		}
+
+		Cell src = gameController.getLastMove().getSource();
+		getCellButton(src.getRow(), src.getCol()).highlightAsPrevCell();
+		Cell target = gameController.getLastMove().getTarget();
+		getCellButton(target.getRow(), target.getCol()).highlightAsCurrentCell();
     }
 
     public final JComponent getGui() {

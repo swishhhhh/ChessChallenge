@@ -28,6 +28,8 @@ public class ChessCellButton extends JButton {
 	private Color inCheckColor = new Color(250, 190, 190);
 	private Color inCheckMateColor = Color.RED;
 	private Color inStaleMateColor = Color.ORANGE;
+	private Color prevCellColor = Color.LIGHT_GRAY;
+	private Color currentCellColor = Color.GRAY;
 	
 	public ChessCellButton(int rowNum, int colNum, ChessGUI gui) {
 		super();
@@ -125,6 +127,14 @@ public class ChessCellButton extends JButton {
 	
 	public void highlightAsInStaleMate() {
 		setBackground(inStaleMateColor);
+	}
+
+	public void highlightAsPrevCell() {
+		setBackground(prevCellColor);
+	}
+
+	public void highlightAsCurrentCell() {
+		setBackground(currentCellColor);
 	}
 	
 	public void resetBackgroundColor() {
